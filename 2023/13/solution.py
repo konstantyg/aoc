@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
 
-from libs.profiler import profiler
-
-
-def look(data: list[str], diff:int=0) -> int:
+def look(data: list[str], diff: int = 0) -> int:
     l = len(data)
     for i in range(1, l):
         if (
@@ -23,7 +20,6 @@ def look(data: list[str], diff:int=0) -> int:
     return 0
 
 
-@profiler
 def part1(data) -> int:
     return sum(100 * look(p) + look(["".join(c) for c in zip(*p)]) for p in data)
 

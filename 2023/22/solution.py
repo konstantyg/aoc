@@ -22,7 +22,17 @@ class Brick:
     supports: set["Brick"] = field(default_factory=set)
 
     def __hash__(self) -> int:
-        return hash(self.i)
+        return self.i
+
+    def __eq__(self, other: "Brick") -> bool:
+        return (
+            self.x1 == other.x1
+            and self.y1 == other.y1
+            and self.z1 == other.z1
+            and self.x2 == other.x2
+            and self.y2 == other.y2
+            and self.z2 == other.z2
+        )
 
     def __repr__(self) -> str:
         return f"Brick {self.i}"
@@ -88,7 +98,7 @@ class Brick:
 
 @profiler
 def part1(bricks: list[Brick]) -> int:
-    # 0.5 msec to complete
+    # 0.4 msec to complete
     safe_to_remove = []
     for brick in bricks:
         safe = True
@@ -130,7 +140,7 @@ def count_fallen(bricks: set[Brick]) -> int:
 
 @profiler
 def part2(bricks: list[Brick]) -> int:
-    # 1,6s to complete
+    # 1,5s to complete
     fallen = 0
     for brick in bricks:
         f = count_fallen({brick})
@@ -159,7 +169,7 @@ def part2_sim(bricks: list[Brick]) -> int:
 
 @profiler
 def parse(input_data: str) -> list[Brick]:
-    # 1,5s to complete
+    # 0,8s to complete
     bricks = []
     i = 1
     for line in input_data.splitlines():
@@ -193,6 +203,7 @@ def parse(input_data: str) -> list[Brick]:
 
 def main(input_data: str):
     bricks = parse(input_data)
+    # return part1_sim(bricks), part2_sim(bricks)
     return part1(bricks), part2(bricks)
 
 
