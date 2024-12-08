@@ -3,7 +3,7 @@
 #   https://adventofcode.com/2024/day/8
 
 
-from itertools import combinations
+from itertools import permutations
 
 Point = tuple[int, int]
 
@@ -12,14 +12,9 @@ def part1(data: dict[str, list[Point]], size: Point) -> int:
     max_x, max_y = size
     s: set[Point] = set()
     for c, points in data.items():
-        for p1, p2 in combinations(points, 2):
-            x1, y1 = p1
-            x2, y2 = p2
-            dx, dy = x2 - x1, y2 - y1
-            s.add((x1 - dx, y1 - dy))
-            s.add((x2 + dx, y2 + dy))
+        for (x1, y1), (x2, y2) in permutations(points, 2):
+            s.add((2 * x1 - x2, 2 * y1 - y2))
     s = {(x, y) for x, y in s if 0 <= x < max_x and 0 <= y < max_y}
-
     return len(s)
 
 
@@ -28,20 +23,10 @@ def part2(data: dict[str, list[Point]], size: Point) -> int:
     s: set[Point] = set()
     for c, points in data.items():
         s |= set(points)
-        for p1, p2 in combinations(points, 2):
-            x1, y1 = p1
-            x2, y2 = p2
+        for (x1, y1), (x2, y2) in permutations(points, 2):
             dx, dy = x2 - x1, y2 - y1
-            while 0 <= x1 - dx < max_x and 0 <= y1 - dy < max_y:
-                s.add((x1 - dx, y1 - dy))
-                x1 -= dx
-                y1 -= dy
-            x1, y1 = p1
-            x2, y2 = p2
-            while 0 <= x2 + dx < max_x and 0 <= y2 + dy < max_y:
-                s.add((x2 + dx, y2 + dy))
-                x2 += dx
-                y2 += dy
+            while 0 <= (x1 := x1 - dx) < max_x and 0 <= (y1 := y1 - dy) < max_y:
+                s.add((x1, y1))
     return len(s)
 
 
