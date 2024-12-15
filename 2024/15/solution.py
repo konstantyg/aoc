@@ -25,12 +25,12 @@ def part1(grid: Grid, moves: Moves) -> int:
     sx, sy = next(k for k, v in grid.items() if v == "@")
     for m in moves:
         dx, dy = MOVES_DEF[m]
-        x, y = sx, sy
+        x, y = sx + dx, sy + dy
         m = False
-        while (c := grid[(x + dx, y + dy)]) != "#":
+        while (c := grid[(x, y)]) != "#":
             if c == ".":
                 if m:
-                    grid[(x + dx, y + dy)] = "O"
+                    grid[(x, y)] = "O"
                 grid[(sx, sy)] = "."
                 sx += dx
                 sy += dy
@@ -42,27 +42,31 @@ def part1(grid: Grid, moves: Moves) -> int:
     return sum(x + y * 100 for (x, y), c in grid.items() if c == "O")
 
 
-def get_possible_moves(grid, sx, sy, dy):
-    ps = [(sx, sy)]
+def get_possible_moves(grid, robot, dx, dy):
+    ps = [robot]
     m = []
     while ps:
         nps = []
         for x, y in ps:
-            if grid[(x, y + dy)] == "#":
+            nx = x + dx
+            ny = y + dy
+            if grid[(nx, ny)] == "#":
                 return []
-            if grid[(x, y + dy)] == ".":
-                m.append(((x, y + dy), (x, y)))
-            if grid[(x, y + dy)] == "[":
-                nps.append((x, y + dy))
-                nps.append((x + 1, y + dy))
-                m.append(((x, y + dy), (x, y)))
-            if grid[(x, y + dy)] == "]":
-                nps.append((x, y + dy))
-                nps.append((x - 1, y + dy))
-                m.append(((x, y + dy), (x, y)))
-
+            if grid[(nx, ny)] == ".":
+                m.append(((nx, ny), (x, y)))
+            elif dx == 0:
+                if grid[(x, ny)] == "[":
+                    nps.append((x, ny))
+                    nps.append((x + 1, ny))
+                    m.append(((x, ny), (x, y)))
+                else:  # elif grid[(x, ny)] == "]":
+                    nps.append((x, ny))
+                    nps.append((x - 1, ny))
+                    m.append(((x, ny), (x, y)))
+            elif grid[(nx, y)] in ["[", "]"]:
+                nps.append((nx, y))
+                m.append(((nx, y), (x, y)))
         ps = nps
-
     return m[::-1]
 
 
@@ -79,30 +83,10 @@ def part2(orggrid: Grid, moves: Moves) -> int:
             v = "."
         grid[(2 * x + 1, y)] = v
 
-    sx, sy = next(k for k, v in grid.items() if v == "@")
-
+    robot = next(k for k, v in grid.items() if v == "@")
     for m in moves:
         dx, dy = MOVES_DEF[m]
-        x, y = sx, sy
-        m = False
-        if grid[(x + dx, y + dy)] == ".":
-            grid[(sx, sy)] = "."
-            sx += dx
-            sy += dy
-            grid[(sx, sy)] = "@"
-            continue
-        if dy == 0:
-            while (c := grid[(x + dx, y)]) != "#":
-                if c == ".":
-                    for cx in range(x + dx, sx, -dx):
-                        grid[(cx, y)] = grid[(cx - dx, y)]
-                    grid[(sx, sy)] = "."
-                    sx += dx
-                    break
-                x += dx
-            continue
-
-        pmoves = get_possible_moves(grid, sx, sy, dy)
+        pmoves = get_possible_moves(grid, robot, dx, dy)
         if not pmoves:
             continue
         dest = set()
@@ -113,7 +97,7 @@ def part2(orggrid: Grid, moves: Moves) -> int:
             grid[p1] = grid[p2]
         for p in org - dest:
             grid[p] = "."
-        sy += dy
+        robot = (robot[0] + dx, robot[1] + dy)
     return sum(x + y * 100 for (x, y), c in grid.items() if c == "[")
 
 
