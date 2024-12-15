@@ -48,22 +48,20 @@ def get_possible_moves(grid, robot, dx, dy):
     while ps:
         nps = []
         for x, y in ps:
-            nx = x + dx
-            ny = y + dy
-            if grid[(nx, ny)] == "#":
+            nx, ny = x + dx, y + dy
+            c = grid[(nx, ny)]
+            if c == "#":
                 return []
-            if grid[(nx, ny)] == ".":
+            if c == ".":
                 m.append(((nx, ny), (x, y)))
             elif dx == 0:
-                if grid[(x, ny)] == "[":
-                    nps.append((x, ny))
+                nps.append((x, ny))
+                if c == "[":
                     nps.append((x + 1, ny))
-                    m.append(((x, ny), (x, y)))
-                else:  # elif grid[(x, ny)] == "]":
-                    nps.append((x, ny))
+                else:
                     nps.append((x - 1, ny))
-                    m.append(((x, ny), (x, y)))
-            elif grid[(nx, y)] in ["[", "]"]:
+                m.append(((x, ny), (x, y)))
+            elif c in ["[", "]"]:
                 nps.append((nx, y))
                 m.append(((nx, y), (x, y)))
         ps = nps
