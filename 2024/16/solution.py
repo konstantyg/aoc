@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
+#      --- Day 16: Reindeer Maze ---                          
+#   https://adventofcode.com/2024/day/16    
 
 from heapq import heappop, heappush
-from typing import TypeAlias
-from collections import defaultdict
 
-Point: TypeAlias = tuple[int, int]
-Direction: TypeAlias = tuple[int, int]
-Path: TypeAlias = tuple[Point, Direction]
-Grid: TypeAlias = dict[Point, str]
+Point = tuple[int, int]
+Direction = tuple[int, int]
+PointDir = tuple[Point, Direction]
+Grid = dict[Point, str]
 
 
 def solve(grid: Grid) -> tuple[int, int]:
@@ -15,11 +15,11 @@ def solve(grid: Grid) -> tuple[int, int]:
     end = next(k for k, v in grid.items() if v == "E")
 
     # list of possible paths with score, path, and used points
-    paths: list[tuple[int, Path, set]] = [(0, (start, (1, 0)), set([start]))]
+    paths: list[tuple[int, PointDir, set]] = [(0, (start, (1, 0)), {start})]
 
     # for best scores
-    visited: dict[Path, int] = {}
-    visited_points: defaultdict[Path, set] = defaultdict(set)
+    visited_scores: dict[PointDir, int] = {}
+    visited_points: dict[PointDir, set[Point]] = {}
 
     while paths:
         score, path, used_points = heappop(paths)
@@ -33,15 +33,16 @@ def solve(grid: Grid) -> tuple[int, int]:
             (score + 1000, p, (-dy, -dx)),
             (score + 1000, p, (dy, dx)),
         ]:
-            if pp != p and grid.get(pp) == "#":
+            if pp != p and grid[pp] == "#":
                 continue
-            if visited.get((pp, dd), 99999999) <= new_score:
-                if visited.get((pp, dd), 99999999) == new_score:
-                    visited_points[(pp, dd)] |= used_points
+            np = (pp, dd)
+            if (pos_score := visited_scores.get(np, float("inf"))) <= new_score:
+                if pos_score == new_score:
+                    visited_points[np] |= used_points
                 continue
-            visited[(pp, dd)] = new_score
-            visited_points[(pp, dd)] = used_points | set([pp])
-            heappush(paths, (new_score, (pp, dd), visited_points[(pp, dd)]))
+            visited_scores[np] = new_score
+            vp = visited_points[np] = used_points | {pp}
+            heappush(paths, (new_score, np, vp))
 
     raise ValueError("no path")
 
@@ -64,38 +65,4 @@ def main(input_data: str):
 if __name__ == "__main__":
     from pathlib import Path
 
-    main("""###############
-#.......#....E#
-#.#.###.#.###.#
-#.....#.#...#.#
-#.###.#####.#.#
-#.#.#.......#.#
-#.#.#####.###.#
-#...........#.#
-###.#.#####.#.#
-#...#.....#.#.#
-#.#.#.###.#.#.#
-#.....#...#.#.#
-#.###.#.#.#.#.#
-#S..#.....#...#
-###############
-""")
-    main("""#################
-#...#...#...#..E#
-#.#.#.#.#.#.#.#.#
-#.#.#.#...#...#.#
-#.#.#.#.###.#.#.#
-#...#.#.#.....#.#
-#.#.#.#.#.#####.#
-#.#...#.#.#.....#
-#.#.#####.#.###.#
-#.#.#.......#...#
-#.#.###.#####.###
-#.#.#...#.....#.#
-#.#.#.#####.###.#
-#.#.#.........#.#
-#.#.#.#########.#
-#S#.............#
-#################
-""")
     main(open(Path(__file__).parent / "input").read().strip())
