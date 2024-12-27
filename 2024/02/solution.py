@@ -6,7 +6,9 @@
 InputType = list[list[int]]
 
 
-def is_safe(level):
+def is_safe(level: list[int]) -> bool:
+    # diffs = {level[i + 1] - level[i] for i in range(len(level) - 1)}
+    # return diffs <= {1, 2, 3} or diffs <= {-1, -2, -3}
     diffs = [a - b for a, b in zip(level, level[1:])]
     if any(d == 0 or abs(d) > 3 for d in diffs):
         return False
@@ -18,6 +20,7 @@ def is_safe(level):
 
 
 def part1(data: InputType):
+    # return sum(is_safe(level) for level in data)
     return len([1 for level in data if is_safe(level)])
 
 

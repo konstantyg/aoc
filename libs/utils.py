@@ -32,3 +32,20 @@ def discretize(i, incr=1):
     first_step = lambda s: (P.OPEN, (s.lower - incr if s.left is P.CLOSED else s.lower), (s.upper + incr if s.right is P.CLOSED else s.upper), P.OPEN)
     second_step = lambda s: (P.CLOSED, (s.lower + incr if s.left is P.OPEN and s.lower != -P.inf else s.lower), (s.upper - incr if s.right is P.OPEN and s.upper != P.inf else s.upper), P.CLOSED)
     return i.apply(first_step).apply(second_step)
+
+
+def rotate(data: list[str], left=False) -> list[str]:
+    """
+    Rotates a 2D list of strings 90 degrees.
+
+    Args:
+        data (list[str]): A list of strings representing the 2D data to be rotated.
+        left (bool, optional): If True, rotates the data 90 degrees counterclockwise. 
+                               If False, rotates the data 90 degrees clockwise. Defaults to False.
+
+    Returns:
+        list[str]: The rotated 2D list of strings.
+    """
+    if left:
+        return ["".join(c) for c in zip(*data)][::-1]
+    return ["".join(c) for c in zip(*data[::-1])]
